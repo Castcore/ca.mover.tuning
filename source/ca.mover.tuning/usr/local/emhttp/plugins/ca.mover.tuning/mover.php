@@ -49,9 +49,9 @@ function startMover($options="") {
 
 	if ($cron or $cfg['movenow'] == "yes") {
 		//exec("echo 'running from cron or move now question is yes' >> /var/log/syslog");
-		$delimitter = "?|+?"; #To replace spaces, chosen so it is very unlikely to be an issue
-		$beforescript = str_replace(' ', $delimitter, trim($cfg['beforeScript'])); 	#Remove/replace whitsespace incase path to script has them
-		$afterscript = str_replace(' ', $delimitter, trim($cfg['afterScript']));
+		$delimiter = "?|+?"; #To replace spaces, chosen so it is very unlikely to be an issue
+		$beforescript = str_replace(' ', $delimiter, trim($cfg['beforeScript'])); 	#Remove/replace whitsespace incase path to script has them
+		$afterscript = str_replace(' ', $delimiter, trim($cfg['afterScript']));
 
 		if ($cfg['threshold'] >= 0 or $cfg['age'] == "yes" or $cfg['sizef'] == "yes" or $cfg['sparsnessf'] == "yes" or $cfg['filelistf'] == "yes" or $cfg['filetypesf'] == "yes" or $beforescript != '' or $afterscript != '' or $cfg['testmode'] == "yes") {
 
@@ -61,7 +61,7 @@ function startMover($options="") {
 			$ageLevel = $cfg['daysold'];
 			$sizeLevel = $cfg['sizeinM'];
 			$sparsnessLevel = $cfg['sparsnessv'];
-			$filelistLevel = str_replace(' ', $delimitter, trim($cfg['filelistv']));
+			$filelistLevel = str_replace(' ', $delimiter, trim($cfg['filelistv']));
 			$filetypesLevel = str_replace(' ', '', trim($cfg['filetypesv']));
 			$ctime = $cfg['ctime'];
 			$testmode = $cfg['testmode'];
@@ -124,7 +124,7 @@ function startMover($options="") {
 			} else {
 				$age_mover_str = "$age_mover_str ''";
 			}
-			$age_mover_str = "$age_mover_str $delimitter"; 	#Add delimitter for age_mover to use
+			$age_mover_str = "$age_mover_str $delimiter"; 	#Add delimiter for age_mover to use
 
 			//exec("echo 'about to hit mover string here: $age_mover_str' >> /var/log/syslog");
 
