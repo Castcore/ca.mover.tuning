@@ -49,10 +49,11 @@ function startMover($options="") {
 
 	if ($cron or $cfg['movenow'] == "yes") {
 		//exec("echo 'running from cron or move now question is yes' >> /var/log/syslog");
-		$beforescript = $cfg['beforeScript'];
-                $afterscript = $cfg['afterScript'];
+		$delimitter = "?|+?"; #To replace spaces, chosen so it is very unlikely to be an issue
+		$beforescript = str_replace(' ', $delimitter, trim($cfg['beforeScript'])); 	#Remove/replace whitsespace incase path to script has them
+		$afterscript = str_replace(' ', $delimitter, trim($cfg['afterScript']));
 
-		if ($cfg['threshold'] >= 0 or $cfg['age'] == "yes" or $cfg['sizef'] == "yes" or $cfg['sparsnessf'] == "yes"  or $cfg['filelistf'] == "yes" or $cfg['filetypesf'] == "yes" or $beforescript != '' or $afterscript != '' or $cfg['testmode'] == "yes" ) {
+		if ($cfg['threshold'] >= 0 or $cfg['age'] == "yes" or $cfg['sizef'] == "yes" or $cfg['sparsnessf'] == "yes" or $cfg['filelistf'] == "yes" or $cfg['filetypesf'] == "yes" or $beforescript != '' or $afterscript != '' or $cfg['testmode'] == "yes") {
 
 			$age_mover_str = "/usr/local/emhttp/plugins/ca.mover.tuning/age_mover start";
 			$niceLevel = $cfg['moverNice'] ?: "0";
@@ -60,8 +61,8 @@ function startMover($options="") {
 			$ageLevel = $cfg['daysold'];
 			$sizeLevel = $cfg['sizeinM'];
 			$sparsnessLevel = $cfg['sparsnessv'];
-			$filelistLevel = $cfg['filelistv'];
-			$filetypesLevel = $cfg['filetypesv'];
+			$filelistLevel = str_replace(' ', $delimitter, trim($cfg['filelistv']));
+			$filetypesLevel = str_replace(' ', '', trim($cfg['filetypesv']));
 			$ctime = $cfg['ctime'];
 			$testmode = $cfg['testmode'];
 			$omoverth = $cfg['omoverthresh'];
@@ -70,71 +71,60 @@ function startMover($options="") {
 			#build age_mover command for all options.
 			if ($cfg['age'] == "yes") {
 				$age_mover_str = "$age_mover_str $ageLevel";
-			}
-			else {
+			} else {
 				$age_mover_str = "$age_mover_str 0";
 			}
 			if ($cfg['sizef'] == "yes") {
 				$age_mover_str = "$age_mover_str $sizeLevel";
-			}
-			else {
+			} else {
 				$age_mover_str = "$age_mover_str 0";
 			}
 			if ($cfg['sparsnessf'] == "yes") {
 				$age_mover_str = "$age_mover_str $sparsnessLevel";
-			}
-			else {
+			} else {
 				$age_mover_str = "$age_mover_str 0";
 			}
 			if ($cfg['filelistf'] == "yes") {
 				$age_mover_str = "$age_mover_str $filelistLevel";
-			}
-			else {
+			} else {
 				$age_mover_str = "$age_mover_str ''";
 			}
 			if ($cfg['filetypesf'] == "yes") {
 				$age_mover_str = "$age_mover_str $filetypesLevel";
-			}
-			else {
+			} else {
 				$age_mover_str = "$age_mover_str ''";
 			}
 			if (empty($beforescript)) {
 				$age_mover_str = "$age_mover_str ''";
-			}
-			else {
+			} else {
 				$age_mover_str = "$age_mover_str $beforescript";
 			}
 			if (empty($afterscript)) {
 				$age_mover_str = "$age_mover_str ''";
-			}
-			else {
+			} else {
 				$age_mover_str = "$age_mover_str $afterscript";
 			}
 			if (empty($ctime)) {
 				$age_mover_str = "$age_mover_str ''";
-			}
-			else {
+			} else {
 				$age_mover_str = "$age_mover_str $ctime";
 			}
-                        if ($cfg['omovercfg'] == "yes") {
-                                $age_mover_str = "$age_mover_str $omoverth";
-                        }
-                        else {
-                                $age_mover_str = "$age_mover_str ''";
-                        }
-
-                        if ($cfg['testmode'] == "yes") {
-				$age_mover_str = "$age_mover_str 'yes'";
-                        }
-                        else {
+			if ($cfg['omovercfg'] == "yes") {
+				$age_mover_str = "$age_mover_str $omoverth";
+			} else {
 				$age_mover_str = "$age_mover_str ''";
-                        }
+			}
+			if ($cfg['testmode'] == "yes") {
+				$age_mover_str = "$age_mover_str 'yes'";
+			} else {
+				$age_mover_str = "$age_mover_str ''";
+			}
 			if ($cfg['ignoreHidden'] == "yes") {
 				$age_mover_str = "$age_mover_str 'yes'";
-			}
-			else {
+			} else {
 				$age_mover_str = "$age_mover_str ''";
 			}
+			$age_mover_str = "$age_mover_str $delimitter"; 	#Add delimitter for age_mover to use
 
 			//exec("echo 'about to hit mover string here: $age_mover_str' >> /var/log/syslog");
 
