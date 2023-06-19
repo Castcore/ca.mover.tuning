@@ -4,21 +4,23 @@ require_once("/usr/local/emhttp/plugins/dynamix/include/Wrappers.php");
 
 $cfg = parse_plugin_cfg("ca.mover.tuning");
 $vars = @parse_ini_file("/var/local/emhttp/var.ini");
-$cron = ( $argv[1] == "crond" );
+$cron = ($argv[1] == "crond");
 
-function logger($string) {
+function logger($string)
+{
 	global $cfg;
 
-	if ( $cfg['logging'] == 'yes' ) {
-		exec("logger ".escapeshellarg($string));
+	if ($cfg['logging'] == 'yes') {
+		exec("logger " . escapeshellarg($string));
 	}
 }
 
-function startMover($options="") {
+function startMover($options = "")
+{
 	global $vars, $cfg, $cron;
 
 
-	if ( $options != "stop" ) {
+	if ($options != "stop") {
 		clearstatcache();
 		$pid = @file_get_contents("/var/run/mover.pid");
 		if ($pid) {
@@ -26,32 +28,31 @@ function startMover($options="") {
 			exit();
 		}
 	}
-	if ( $options == "force") {
+	if ($options == "force") {
 		$options = "";
-		if ( $cfg['forceParity'] == "no" && $vars['mdResyncPos'] ) {
+		if ($cfg['forceParity'] == "no" && $vars['mdResyncPos']) {
 			logger("Parity Check / Rebuild in Progress.  Not running forced move");
 			exit();
 		}
 	}
-	if ( $cfg['enableTurbo'] == "yes" ) {
+	if ($cfg['enableTurbo'] == "yes") {
 		logger("Forcing turbo write on");
 		exec("/usr/local/sbin/mdcmd set md_write_method 1");
 	}
 
-        if ( $options == "stop") {
-                $niceLevel = $cfg['moverNice'] ?: "0";
-                $ioLevel = $cfg['moverIO'] ?: "-c 2 -n 0";
-                logger("ionice $ioLevel nice -n $niceLevel /usr/local/sbin/mover.old stop");
-                passthru("ionice $ioLevel nice -n $niceLevel /usr/local/sbin/mover.old stop");
+	if ($options == "stop") {
+		$niceLevel = $cfg['moverNice'] ?: "0";
+		$ioLevel = $cfg['moverIO'] ?: "-c 2 -n 0";
+		logger("ionice $ioLevel nice -n $niceLevel /usr/local/sbin/mover.old stop");
+		passthru("ionice $ioLevel nice -n $niceLevel /usr/local/sbin/mover.old stop");
 		exit();
-        }
+	}
 
 
 	if ($cron or $cfg['movenow'] == "yes") {
 		//exec("echo 'running from cron or move now question is yes' >> /var/log/syslog");
-		$delimiter = "?|+?"; #To replace spaces, chosen so it is very unlikely to be an issue
-		$beforescript = str_replace(' ', $delimiter, trim($cfg['beforeScript'])); 	#Remove/replace whitsespace incase path to script has them
-		$afterscript = str_replace(' ', $delimiter, trim($cfg['afterScript']));
+		$beforescript = $cfg['beforeScript'];
+		$afterscript = $cfg['afterScript'];
 
 		if ($cfg['threshold'] >= 0 or $cfg['age'] == "yes" or $cfg['sizef'] == "yes" or $cfg['sparsnessf'] == "yes" or $cfg['filelistf'] == "yes" or $cfg['filetypesf'] == "yes" or $beforescript != '' or $afterscript != '' or $cfg['testmode'] == "yes") {
 
@@ -61,8 +62,8 @@ function startMover($options="") {
 			$ageLevel = $cfg['daysold'];
 			$sizeLevel = $cfg['sizeinM'];
 			$sparsnessLevel = $cfg['sparsnessv'];
-			$filelistLevel = str_replace(' ', $delimiter, trim($cfg['filelistv']));
-			$filetypesLevel = str_replace(' ', '', trim($cfg['filetypesv']));
+			$filelistLevel = $cfg['filelistv'];
+			$filetypesLevel = $cfg['filetypesv'];
 			$ctime = $cfg['ctime'];
 			$testmode = $cfg['testmode'];
 			$omoverth = $cfg['omoverthresh'];
@@ -85,24 +86,24 @@ function startMover($options="") {
 				$age_mover_str = "$age_mover_str 0";
 			}
 			if ($cfg['filelistf'] == "yes") {
-				$age_mover_str = "$age_mover_str $filelistLevel";
+				$age_mover_str = "$age_mover_str \"$filelistLevel\"";
 			} else {
 				$age_mover_str = "$age_mover_str ''";
 			}
 			if ($cfg['filetypesf'] == "yes") {
-				$age_mover_str = "$age_mover_str $filetypesLevel";
+				$age_mover_str = "$age_mover_str \"$filetypesLevel\"";
 			} else {
 				$age_mover_str = "$age_mover_str ''";
 			}
 			if (empty($beforescript)) {
 				$age_mover_str = "$age_mover_str ''";
 			} else {
-				$age_mover_str = "$age_mover_str $beforescript";
+				$age_mover_str = "$age_mover_str \"$beforescript\"";
 			}
 			if (empty($afterscript)) {
 				$age_mover_str = "$age_mover_str ''";
 			} else {
-				$age_mover_str = "$age_mover_str $afterscript";
+				$age_mover_str = "$age_mover_str \"$afterscript\"";
 			}
 			if (empty($ctime)) {
 				$age_mover_str = "$age_mover_str ''";
@@ -124,7 +125,6 @@ function startMover($options="") {
 			} else {
 				$age_mover_str = "$age_mover_str ''";
 			}
-			$age_mover_str = "$age_mover_str $delimiter"; 	#Add delimiter for age_mover to use
 
 			//exec("echo 'about to hit mover string here: $age_mover_str' >> /var/log/syslog");
 
@@ -132,27 +132,25 @@ function startMover($options="") {
 			passthru("ionice $ioLevel nice -n $niceLevel $age_mover_str");
 		}
 
-	}
-
-	else {
+	} else {
 		//exec("echo 'Running from button' >> /var/log/syslog");
 		//Default "move now" button has been hit.
-                $niceLevel = $cfg['moverNice'] ?: "0";
-                $ioLevel = $cfg['moverIO'] ?: "-c 2 -n 0";
-                logger("ionice $ioLevel nice -n $niceLevel /usr/local/sbin/mover.old $options");
-                passthru("ionice $ioLevel nice -n $niceLevel /usr/local/sbin/mover.old $options");
+		$niceLevel = $cfg['moverNice'] ?: "0";
+		$ioLevel = $cfg['moverIO'] ?: "-c 2 -n 0";
+		logger("ionice $ioLevel nice -n $niceLevel /usr/local/sbin/mover.old $options");
+		passthru("ionice $ioLevel nice -n $niceLevel /usr/local/sbin/mover.old $options");
 
-	}	
+	}
 
 
-        if ( $cfg['enableTurbo'] == "yes" ) {
-                logger("Restoring original turbo write mode");
-                exec("/usr/local/sbin/mdcmd set md_write_method {$vars['md_write_method']}");
-        }
+	if ($cfg['enableTurbo'] == "yes") {
+		logger("Restoring original turbo write mode");
+		exec("/usr/local/sbin/mdcmd set md_write_method {$vars['md_write_method']}");
+	}
 
 }
 
-if ( $argv[2] ) {
+if ($argv[2]) {
 	startMover(trim($argv[2]));
 	exit();
 }
@@ -165,12 +163,12 @@ if ( $argv[2] ) {
 }
 */
 
-if ( $cron && $cfg['moverDisabled'] == 'yes' ) {
+if ($cron && $cfg['moverDisabled'] == 'yes') {
 	logger("Mover schedule disabled");
 	exit();
 }
 
-if ( $cfg['parity'] == 'no' && $vars['mdResyncPos'] ) {
+if ($cfg['parity'] == 'no' && $vars['mdResyncPos']) {
 	logger("Parity Check / rebuild in progress.  Not running mover");
 	exit();
 }

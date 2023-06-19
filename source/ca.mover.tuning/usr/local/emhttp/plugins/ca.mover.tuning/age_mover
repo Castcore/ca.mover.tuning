@@ -69,6 +69,11 @@ NUM_FILES_TO_CACHE=0
 
 mvlogger () {
     
+	if [ ! -d "/tmp/Mover" ]; then
+		echo "/tmp/Mover Directory does not exist. Creating it"
+		mkdir -p /tmp/Mover
+	fi
+
     if [ $LOGLEVEL = 1 ] ; then
         echo "mvlogger: $1" >> $MOVER_LOG
     fi
@@ -429,11 +434,17 @@ if [ -f $CFGFILE ]; then
     fi
 fi
 
+##Add /tmp/Mover directory creation command here.
+
+
 mvlogger  "*********************************MOVER START*******************************"
 
 #Test input variables
 # 1: start/stop/kill 2: Age of files 3: Size of files 4: Sparness amount 5: Exclude file list file path
-delimiter=$13
+
+#Delimiter update Castcore
+delimitter=$13
+
 if [ -z "$2" ] ; then
     mvlogger "No Age  Argument Supplied"
     AGE=0
@@ -466,8 +477,7 @@ else
     ###echo "Skipfilelist supplied"
     ###SKIPFILESLIST=chomp($5)
     SKIPFILESLIST=$5
-    SKIPFILESLIST=str_replace($delimiter, ' ', $SKIPFILESLIST); #Replaces spaces
-    SKIPFILESLIST=`echo $SKIPFILESLIST | sed 's/ *$//g'`
+	SKIPFILESLIST=`echo $SKIPFILESLIST | sed 's/ *$//g'`
     mvlogger "SKIP FILE: $SKIPFILESLIST"
 fi
 
@@ -486,7 +496,6 @@ if [ -z "$7" ] ; then
     BEFORESCRIPT=""
 else
     BEFORESCRIPT=$7
-    BEFORESCRIPT=str_replace($delimiter, ' ', $BEFORESCRIPT);
     mvlogger "BEFORESCRIPT: $BEFORESCRIPT"
 fi
 
@@ -495,7 +504,6 @@ if [ -z "$8" ] ; then
     AFTERSCRIPT=""
 else
     AFTERSCRIPT=$8
-    AFTERSCRIPT=str_replace($delimiter, ' ', $AFTERSCRIPT);
     mvlogger "AFTERSCRIPT: $AFTERSCRIPT"
 fi
 
@@ -563,7 +571,7 @@ start() {
     [[ $LOGLEVEL -gt 0 ]] && echo "mover: started"
     
     #Make /tmp/Mover directory silently.
-    mkdir -p /tmp/Mover
+  ###mkdir -p /tmp/Mover
     
     #Delete helper files over 5 days old.
     find /tmp/Mover/* -daystart -mtime +5 -name '*.list' -delete
