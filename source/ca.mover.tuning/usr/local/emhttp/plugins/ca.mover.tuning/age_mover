@@ -441,10 +441,6 @@ mvlogger  "*********************************MOVER START*************************
 
 #Test input variables
 # 1: start/stop/kill 2: Age of files 3: Size of files 4: Sparness amount 5: Exclude file list file path
-
-#Delimiter update Castcore
-delimitter=$13
-
 if [ -z "$2" ] ; then
     mvlogger "No Age  Argument Supplied"
     AGE=0
