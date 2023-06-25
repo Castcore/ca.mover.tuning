@@ -396,8 +396,8 @@ mvallfrompool() {
             for SHAREPATH in $POOLPATH/*/; do
                 SHARE=$(basename "$SHAREPATH")
                 if grep -qs 'shareUseCache="yes"' "/boot/config/shares/${SHARE}.cfg"; then
-                    cfgPath="/boot/config/plugins/ca.mover.tuning/shareOverrideConfig/$SHARENAME.cfg"
-                    if [ -f $cfgPath ] && grep -qs 'omovercfg="no"' "$cfgPath"; then
+                    cfgPath="/boot/config/plugins/ca.mover.tuning/shareOverrideConfig/$SHARE.cfg"
+                    if [ -f $cfgPath ] && ! grep -qs 'omovercfg="yes"' "$cfgPath"; then
                         #Skip this share
                         if [ "$TESTMODE" = "yes" ]; then
                             mvlogger "Running in Test Mode: \"$SHARE\" skipped."
@@ -721,13 +721,14 @@ start() {
                 mvlogger "Skipfiletypes string: $FINDSTR"
 
                 if [ -n "$SKIPFILETYPES" ]; then
-                    FINDSTR+=" | grep -v"
+                    FINDSTR+=" | grep -iv"
                     for i in $(echo $SKIPFILETYPES | sed "s/,/ /g"); do
                         FINDSTR+=" -e '$i'"
                     done
                 fi
 
                 if [ -d "$SHAREPATH" ]; then
+                    echo $FINDSTR
                     eval "$FINDSTR>>$MOVER_FILELIST"
                 fi
 
