@@ -728,7 +728,6 @@ start() {
                 fi
 
                 if [ -d "$SHAREPATH" ]; then
-                    echo $FINDSTR
                     eval "$FINDSTR>>$MOVER_FILELIST"
                 fi
 
