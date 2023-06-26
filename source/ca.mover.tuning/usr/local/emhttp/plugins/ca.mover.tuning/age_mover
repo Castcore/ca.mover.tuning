@@ -480,7 +480,7 @@ setMoverSettings() {
     else
         ###echo "Skipfiletypes supplied"
         SKIPFILETYPES=$6
-        SKIPFILETYPES=$(echo $SKIPFILETYPES | sed 's/ *$//g')
+        SKIPFILETYPES=$(echo "$SKIPFILETYPES" | awk -F, '{for(i=1;i<=NF;i++) {gsub(/ /, "", $i); if ($i !~ /^\./) $i = "."$i; printf "%s%s", $i, (i<NF?",":"")}}')
         mvlogger "SKIP FILE TYPES: $SKIPFILETYPES"
     fi
 
@@ -723,7 +723,7 @@ start() {
                 if [ -n "$SKIPFILETYPES" ]; then
                     FINDSTR+=" | grep -iv"
                     for i in $(echo $SKIPFILETYPES | sed "s/,/ /g"); do
-                        FINDSTR+=" -e '$i'"
+                        FINDSTR+=" -e '\\$i'"
                     done
                 fi
 
