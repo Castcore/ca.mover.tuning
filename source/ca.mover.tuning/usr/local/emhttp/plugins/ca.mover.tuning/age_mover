@@ -466,12 +466,20 @@ setMoverSettings() {
     if [ -z "$5" ]; then
         mvlogger "No Skipfiles Argument Supplied"
         SKIPFILESLIST=""
+        SKIPFOLDERSLIST=""
     else
-        ###echo "Skipfilelist supplied"
-        ###SKIPFILESLIST=chomp($5)
-        SKIPFILESLIST=$5
-        SKIPFILESLIST=$(echo $SKIPFILESLIST | sed 's/ *$//g')
-        mvlogger "SKIP FILE: $SKIPFILESLIST"
+        SKIPFILESPATH=$5
+        SKIPFILESPATH=$(echo $SKIPFILESPATH | sed 's/ *$//g')
+        SKIPFILESLIST=$SKIPFILESPATH
+        SKIPFOLDERSLIST=""
+        while IFS= read -r path; do
+            if [ -d "$path" ]; then
+                SKIPFOLDERSLIST+="$path/*"$'\n'
+            fi
+        done < <(cat "$SKIPFILESPATH"; echo)
+        SKIPFOLDERSLIST="${SKIPFOLDERSLIST%$'\n'}"
+        mvlogger "SKIP FILES PATH: $SKIPFILESLIST"
+        mvlogger "SKIP FOLDERS: $SKIPFOLDERSLIST"
     fi
 
     if [ -z "$6" ]; then
@@ -715,16 +723,23 @@ start() {
                     FINDSTR+=" -printf '%S:%p\0' | awk -v RS='\0' -F : '\$1 > 0.$SPARSENESS {sub(/^[^:]*:/, \"\"); print}'"
                 fi
 
+                if [ -n "$SKIPFOLDERSLIST" ]; then
+                    mvlogger "Adding Skip Folder List"
+                    mvlogger "Skip Folder List Path: ${SKIPFILESPATH}"
+
+                    while IFS= read -r folder; do
+                        FINDSTR+=" -not -path \"$folder\""
+                    done <<<"$SKIPFOLDERSLIST"
+                fi
+
                 #Add additional commands
                 #Add Skipfilelist to find string
                 if [ -n "$SKIPFILESLIST" ]; then
                     mvlogger "Adding Skip File List"
-                    mvlogger "Skip File List Path: ${SKIPFILESLIST}"
+                    mvlogger "Skip File List Path: ${SKIPFILESPATH}"
 
-                    FINDSTR+=" | grep -vFf '$SKIPFILESLIST'"
+                    FINDSTR+=" | grep -vFx -f '$SKIPFILESLIST'"
                 fi
-
-                mvlogger "Skipfiletypes string: $FINDSTR"
 
                 if [ -n "$SKIPFILETYPES" ]; then
                     FINDSTR+=" | grep -iv"
@@ -734,6 +749,7 @@ start() {
                 fi
 
                 if [ -d "$SHAREPATH" ]; then
+                    mvlogger "FINDSTR is: $FINDSTR"
                     eval "$FINDSTR>>$MOVER_FILELIST"
                 fi
 
