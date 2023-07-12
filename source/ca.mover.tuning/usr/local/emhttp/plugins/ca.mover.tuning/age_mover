@@ -473,6 +473,7 @@ setMoverSettings() {
         SKIPFILESLIST=$SKIPFILESPATH
         SKIPFOLDERSLIST=""
         while IFS= read -r path; do
+            path=${path%/}
             if [ -d "$path" ]; then
                 SKIPFOLDERSLIST+="$path/*"$'\n'
             fi
@@ -738,7 +739,7 @@ start() {
                     mvlogger "Adding Skip File List"
                     mvlogger "Skip File List Path: ${SKIPFILESPATH}"
 
-                    FINDSTR+=" | grep -vFx -f '$SKIPFILESLIST'"
+                    FINDSTR+=" | grep -vFx -f <(sed 's/\/*$//' '$SKIPFILESLIST')"
                 fi
 
                 if [ -n "$SKIPFILETYPES" ]; then
