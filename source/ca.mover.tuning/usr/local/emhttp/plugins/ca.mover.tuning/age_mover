@@ -877,8 +877,25 @@ stop() {
 }
 
 softstop() {
-    echo "Soft Start Requested"
+    echo "Soft Stop Requested"
+    if [ ! -f $PIDFILE ]; then
+        echo "mover: not running"
+        exit 0
+    fi
+
+
     touch $SOFTSTOPFILE
+}
+
+status() {
+    if [ -f $PIDFILE ]; then
+	echo "mover: running"
+	cat $PIDFILE
+	exit 0
+    else
+	echo "mover: not running"
+    fi
+
 }
 
 case $1 in
@@ -892,7 +909,7 @@ softstop)
     softstop
     ;;
 status)
-    [ -f $PIDFILE ]
+    status
     ;;
 *)
     # Default is "start"
