@@ -159,8 +159,8 @@ function startMover($options = "")
         //Default "move now" button has been hit.
         $niceLevel = $cfg['moverNice'] ?: "0";
         $ioLevel = $cfg['moverIO'] ?: "-c 2 -n 0";
-        logger("ionice $ioLevel nice -n $niceLevel /usr/local/emhttp/plugins/ca.mover.tuning/age_mover $options");
-        passthru("ionice $ioLevel nice -n $niceLevel /usr/local/emhttp/plugins/ca.mover.tuning/age_mover $options");
+        logger("ionice $ioLevel nice -n $niceLevel /usr/local/sbin/mover.old $options");
+        passthru("ionice $ioLevel nice -n $niceLevel /usr/local/sbin/mover.old $options");
 
     }
 
