@@ -101,7 +101,7 @@ loopdirectories() {
 
     # Sort the directory list in reverse order with subdirectories first
     if [ -f "$CUSTOM_MOVER_DIRECTORYLIST" ]; then
-        while read DIRECTORYFILEPATH; do
+        while IFS= read -r DIRECTORYFILEPATH; do
 
             count=$(find "$DIRECTORYFILEPATH" -mindepth 1 | wc -l)
 
@@ -138,7 +138,7 @@ customFilelist() {
 
     ###Start looping through filelist one line at a time
     touch $CUSTOM_MOVER_FILELIST
-    while read CACHEFILEPATH; do
+    while IFS= read -r CACHEFILEPATH; do
         CACHEFILESIZE=$(stat -c%s "$CACHEFILEPATH")
 
         if [ -d "$CACHEFILEPATH" ]; then
@@ -158,7 +158,7 @@ loopcustomFilelist() {
     HASHARDLINK=false
 
     #Loop through the filelist and check to see if there are any hardlinks
-    while read HARDFILE; do
+    while IFS= read -r HARDFILE; do
 
         #Pull out FilePath
         HARDFILEPATH=$(echo "$HARDFILE" | sed -n 's/^[^;]*;\(.*\);[^;]*$/\1/p')
@@ -186,7 +186,7 @@ loopcustomFilelist() {
         mvlogger "File List contains hardlinks, sending all of the filelist to mover binary"
 
         #Loop through the filelist and create a new "HARDLinks custom mover file"
-        while read HARD_LINK_FILELIST; do
+        while IFS= read -r HARD_LINK_FILELIST; do
             #Pull out FilePath only.
             HARD_PATH=$(echo "$HARD_LINK_FILELIST" | sed -n 's/^[^;]*;\(.*\);[^;]*$/\1/p')
 
@@ -210,7 +210,7 @@ loopcustomFilelist() {
     else
         #File List contains no hardlinks.  loop through each file.
 
-        while read CUSTOMFILE; do
+        while IFS= read -r CUSTOMFILE; do
             ##Code for softstop here
             if [ -e $SOFTSTOPFILE ]; then
                 echo "Soft Stop requested"
@@ -267,7 +267,7 @@ loopArrayFilelist() {
     #Reach through the CUSTOM MOVER FILELIST and send the filepath to the mover binary
 
     ##Start looping
-    while read CUSTOMFILE; do
+    while IFS= read -r CUSTOMFILE; do
         #Check to see if there is a soft stop requested.
         if [ -e $SOFTSTOPFILE ]; then
             echo "Soft Stop requested"
@@ -328,7 +328,7 @@ customArrayFilelist() {
     FILECOUNT=0
 
     mvlogger "Cache File List: $CACHE_FILELIST"
-    while read CACHEFILEPATH; do
+    while IFS= read -r CACHEFILEPATH; do
         CACHEFILESIZE=$(stat -c%s "$CACHEFILEPATH")
 
         if [ -d "$CACHEFILEPATH" ]; then
@@ -346,7 +346,7 @@ totalsizeFilelist() {
     #echo "Grabbing total filesize"
 
     #start looping
-    while read CUSTOMLINE; do
+    while IFS= read -r CUSTOMLINE; do
         #PULL out file size
         ###echo "$CUSTOMLINE"
         CUSTOMLINESIZE=$(echo "$CUSTOMLINE" | sed -n 's/.*;\(.*\)/\1/p')
@@ -365,7 +365,7 @@ totalsizeArraylist() {
     #echo "Grabbing total filesize"
 
     #start looping
-    while read CUSTOMFILE; do
+    while IFS= read -r CUSTOMLINE; do
         #PULL out file size
         CUSTOMFILESIZE=$(echo "$CUSTOMFILE" | sed -n 's/.*;\(.*\)/\1/p')
 
