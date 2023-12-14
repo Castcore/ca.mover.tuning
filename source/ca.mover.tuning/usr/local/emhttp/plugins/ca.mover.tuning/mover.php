@@ -6,6 +6,12 @@ $cfg = parse_plugin_cfg("ca.mover.tuning");
 $vars = @parse_ini_file("/var/local/emhttp/var.ini");
 $cron = ($argv[1] == "crond");
 
+#Check to see if $cfg has relevant fields in it, "ca.mover.tuning.cfg" may not have existed
+if (! isset($cfg['moverDisabled'])) {   #moverDisabled should always have a value of yes or no
+    logger("ca.mover.tuning.cfg either does not exist or does not have relevant fields. Please check before running mover.");
+    exit();
+}
+
 function logger($string)
 {
     global $cfg;
