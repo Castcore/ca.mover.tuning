@@ -367,7 +367,7 @@ totalsizeArraylist() {
     #start looping
     while IFS= read -r CUSTOMLINE; do
         #PULL out file size
-        CUSTOMFILESIZE=$(echo "$CUSTOMFILE" | sed -n 's/.*;\(.*\)/\1/p')
+        CUSTOMFILESIZE=$(echo "$CUSTOMLINE" | sed -n 's/.*;\(.*\)/\1/p')
 
         ((TOTALARRAYSIZE += $CUSTOMFILESIZE))
 
